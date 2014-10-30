@@ -179,3 +179,16 @@ Including indent-buffer, which should not be called automatically on save."
          (files (mapcar 'car recent-files))
          (file (completing-read "Choose recent file: " files)))
     (find-file (cdr (assoc file recent-files)))))
+
+
+(defun string/startswith (s begin)
+  (and (string-match (rx-to-string `(: bos ,begin) t)
+                     s)
+       t))
+
+(defun kill-all-buffers ()
+  (interactive)
+  (mapcar (lambda (x)
+            (if (not (string/startswith (buffer-name x) "*"))
+                (kill-buffer x)))
+          (buffer-list)))

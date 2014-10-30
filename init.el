@@ -85,7 +85,7 @@
 (require 'init-fonts)
 (require 'init-git)
 (require 'init-crontab)
-(require 'init-textile)
+;;(require 'init-textile)
 (require 'init-markdown)
 (require 'init-csv)
 (require 'init-erlang)
@@ -105,7 +105,7 @@
 (require 'init-cc-mode)
 (require 'init-gud)
 (require 'init-cmake-mode)
-(require 'init-csharp-mode)
+;;(require 'init-csharp-mode)
 (require 'init-linum-mode)
 (require 'init-which-func)
 (require 'init-move-window-buffer)
@@ -124,10 +124,13 @@
 (require 'init-term-mode)
 (require 'init-web-mode)
 (require 'init-sr-speedbar)
-(require 'init-slime)
+;;(require 'init-eproject)
+(require 'init-projectile)
+;; (require 'init-slime)
 (when *emacs24* (require 'init-company))
 (require 'init-stripe-buffer)
-(require 'init-eim) ;;  cannot be idle-required
+(require 'google-c-style)
+;;(require 'init-eim) ;;  cannot be idle-required
 
 ;; color theme
 (require 'color-theme)
@@ -144,8 +147,9 @@
                              init-pomodoro
                              init-emacspeak
                              init-artbollocks-mode
-                             init-emacs-w3m
-                             init-semantic))
+                        ;;     init-emacs-w3m
+                             init-semantic
+                             init-custom-frame))
 (idle-require-mode 1) ;; starts loading
 
 ;;----------------------------------------------------------------------------
@@ -163,8 +167,17 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(bmkp-last-as-first-bookmark-file "~/.emacs.bmk")
- '(safe-local-variable-values (quote ((emacs-lisp-docstring-fill-column . 75) (ruby-compilation-executable . "ruby") (ruby-compilation-executable . "ruby1.8") (ruby-compilation-executable . "ruby1.9") (ruby-compilation-executable . "rbx") (ruby-compilation-executable . "jruby")))))
+ '(bmkp-last-as-first-bookmark-file "~/.emacs.d/.bookmarks.el")
+ '(ede-project-directories (quote ("/Users/tangcheng/works/ecard/core/netsvr")))
+ '(safe-local-variable-values
+   (quote
+    ((emacs-lisp-docstring-fill-column . 75)
+     (ruby-compilation-executable . "ruby")
+     (ruby-compilation-executable . "ruby1.8")
+     (ruby-compilation-executable . "ruby1.9")
+     (ruby-compilation-executable . "rbx")
+     (ruby-compilation-executable . "jruby"))))
+ '(session-use-package t nil (session)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

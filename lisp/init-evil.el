@@ -1,5 +1,5 @@
-;; @see https://bitbucket.org/lyro/evil/issue/360/possible-evil-search-symbol-forward
-;; evil 1.0.8 search word instead of symbol
+;; @see https://bitbucket.org/lyro/evil/issue/360/possible-evil- search-symbol-forward
+;; evil 1.0.8                                                    search word instead of symbol
 (setq evil-symbol-word-search t)
 ;; load undo-tree and ert
 (add-to-list 'load-path "~/.emacs.d/site-lisp/evil/lib")
@@ -202,8 +202,10 @@ to replace the symbol under cursor"
   "cb" 'evilcvn-change-symbol-in-whole-buffer
   "tt" 'ido-goto-symbol ;; same as my vim hotkey
   "ht" 'helm-etags-select
+  "ho" 'helm-occur
   "hb" 'helm-bookmarks
-  "cg" 'helm-ls-git-ls
+  "hg" 'helm-ls-git-ls
+  "hi" 'helm-mini
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname \"" (cppcm-get-exe-path-current-buffer) "\"")))
   "uk" 'gud-kill-yes
   "ur" 'gud-remove
@@ -372,7 +374,9 @@ to replace the symbol under cursor"
   "zwr" 'wg-redo-wconfig-change
   "zws" 'wg-save-wconfig
   "wf" 'popup-which-function
-  )
+  "vb" 'projectile-switch-to-buffer)
+
+
 ;; }}
 
 ;; change mode-line color by evil state

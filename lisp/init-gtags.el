@@ -39,4 +39,5 @@
   (message "GTAGSLIBPATH=%s" (getenv "GTAGSLIBPATH"))
   )
 
+(global-set-key (kbd "C-<f12>") 'ggtags-update-tags)
 (provide 'init-gtags)
