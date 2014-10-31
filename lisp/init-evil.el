@@ -206,6 +206,12 @@ to replace the symbol under cursor"
   "hb" 'helm-bookmarks
   "hg" 'helm-ls-git-ls
   "hi" 'helm-mini
+  "df" 'helm-bookmarks
+  "im" 'helm-imenu
+  "hr" 'helm-recentf
+  "xo" 'helm-find-files
+  "hs" 'helm-swoop
+  "hb" 'helm-back-to-last-point
   "ud" '(lambda ()(interactive) (gud-gdb (concat "gdb --fullname \"" (cppcm-get-exe-path-current-buffer) "\"")))
   "uk" 'gud-kill-yes
   "ur" 'gud-remove
@@ -226,7 +232,6 @@ to replace the symbol under cursor"
   "hp" 'highlight-symbol-prev
   "hq" 'highlight-symbol-query-replace
   "bm" 'pomodoro-start ;; beat myself
-  "im" 'helm-imenu
   "." 'evil-ex
   ;; toggle overview,  @see http://emacs.wordpress.com/2007/01/16/quick-and-dirty-code-folding/
   "gn" 'git-timemachine-show-next-revisio
@@ -243,7 +248,6 @@ to replace the symbol under cursor"
            (message "git-gutter:set-start-revision HEAD^"))
   "gsr" '(lambda () (interactive) (git-gutter:set-start-revision nil)
            (message "git-gutter reset")) ;; reset
-  "hr" 'helm-recentf
   "jb" 'js-beautify
   "se" 'string-edit-at-point
   "s0" 'delete-window
@@ -279,11 +283,9 @@ to replace the symbol under cursor"
   "rbr" 'robe-rails-refresh
   "rbs" 'robe-start
   "ws" 'w3mext-hacker-search
-  "hs" 'helm-swoop
   "hd" 'describe-function
   "hf" 'find-function
   "hv" 'describe-variable
-  "hb" 'helm-back-to-last-point
   "gt" 'ggtags-find-tag-dwim
   "gr" 'ggtags-find-reference
   "fb" 'flyspell-buffer
@@ -323,7 +325,6 @@ to replace the symbol under cursor"
   "xf" 'ido-find-file
   "xb" 'ido-switch-buffer
   "xc" 'save-buffers-kill-terminal
-  "xo" 'helm-find-files
   "ri" '(lambda () (interactive) (require 'helm) (yari-helm))
   "vv" 'scroll-other-window
   "vu" '(lambda () (interactive) (scroll-other-window '-))
@@ -375,6 +376,7 @@ to replace the symbol under cursor"
   "zws" 'wg-save-wconfig
   "wf" 'popup-which-function
   "vb" 'projectile-switch-to-buffer)
+
 
 
 ;; }}

@@ -126,7 +126,8 @@
 (require 'init-sr-speedbar)
 ;;(require 'init-eproject)
 (require 'init-projectile)
-;; (require 'init-slime)
+;(require 'init-slime)
+
 (when *emacs24* (require 'init-company))
 (require 'init-stripe-buffer)
 (require 'google-c-style)

@@ -8,7 +8,7 @@
     (set-frame-width (selected-frame) 140)
     (message "setup frame width finish!")))
 
-(set-default-frame-size)
+;;(set-default-frame-size)
 (add-to-list 'default-frame-alist '(font . "Ubuntu Mono-14"))
 (set-face-attribute 'default t :font  "Ubuntu Mono-14")
 

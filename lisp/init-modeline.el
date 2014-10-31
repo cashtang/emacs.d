@@ -15,6 +15,14 @@
       ;; (propertize "%02c" 'face 'font-lock-type-face)
     ") "
 
+    "["
+
+    '(:eval (propertize (if (eq buffer-file-coding-system nil)
+                            "%%"
+                          (format "%S" buffer-file-coding-system))
+                        'face nil))
+
+    "]"
     ;; the current major mode for the buffer.
     "["
 
