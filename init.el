@@ -131,7 +131,8 @@
 (when *emacs24* (require 'init-company))
 (require 'init-stripe-buffer)
 (require 'google-c-style)
-;;(require 'init-eim) ;;  cannot be idle-required
+(require 'init-eim) ;;  cannot be idle-required
+(require 'highlight-symbol)
 
 ;; color theme
 (require 'color-theme)
@@ -139,6 +140,7 @@
 (color-theme-molokai)
 ;; misc has some crucial tools I need immediately
 (require 'init-misc)
+(require 'init-deft)
 
 (setq idle-require-idle-delay 3)
 (setq idle-require-symbols '(init-lisp

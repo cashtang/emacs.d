@@ -1,0 +1,6 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: xelatex
+# key: xelatex
+# binding: direct-keybinding
+# --
+#+LATEX_CLASS: org-latex-cn

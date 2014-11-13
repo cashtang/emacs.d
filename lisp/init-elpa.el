@@ -75,16 +75,23 @@ ARCHIVE is the string name of the package archive.")
 
 ;; well, melpa does not bother supporting emacs23 any more, but cl-lib is still required
 ;; TODO: in half a year, I will remove gnu elpa because emacs 24.3 is the minimum version
-(setq package-archives '(("melpa" . "http://melpa.org/packages/")
-                         ("melpa-stable" . "http://stable.melpa.org/packages/")
-                         ))
-(if (not *emacs24*) (add-to-list 'package-archives '("localelpa" . "~/.emacs.d/localelpa")))
+;; (setq package-archives '(("melpa" . "http://melpa.org/packages/")
+;;                          ("melpa-stable" . "http://stable.melpa.org/packages/")
+;;                          ))
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+
+;; (add-to-list 'package-archives
+;;              '("melpa" . "http://melpa.milkbox.net/packages/") t)
+
+;; (if (not *emacs24*) (add-to-list 'package-archives '("localelpa" . "~/.emacs.d/localelpa")))
 
 ;; Un-comment below line if you download zip file from https://github.com/redguardtoo/myelpa/archive/master.zip and extract its content into ~/myelpa/
 ;; (setq package-archives '(("myelpa" . "~/myelpa")))
 
 ;; Or Un-comment below line if you prefer installing package from https://github.com/redguardtoo/myelpa/ directly
 ;; (setq package-archives '(("myelpa" . "https://raw.github.com/redguardtoo/myelpa/master/")))
+
+(package-initialize)
 
 (defvar melpa-include-packages
   '(bbdb
@@ -143,6 +150,7 @@ ARCHIVE is the string name of the package archive.")
     w3m
     fakir
     erlang
+    virutalenvwrapper
     fancy-narrow)
   "Don't install any Melpa packages except these packages")
 
@@ -162,7 +170,6 @@ ARCHIVE is the string name of the package archive.")
 ;; Fire up package.el and ensure the following packages are installed.
 ;;------------------------------------------------------------------------------
 
-(package-initialize)
 
 (require-package 'cl-lib '(0 0 5) nil)
 (require-package 'kv '(0 0 19) nil)

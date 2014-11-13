@@ -6,7 +6,7 @@
 ;; and you need install texlive-xetex on different platforms
 ;; To install texlive-xetex:
 ;;    `sudo USE="cjk" emerge texlive-xetex` on Gentoo Linux
-(setq org-latex-to-pdf-process
+(setq org-latex-pdf-process
       '("xelatex -interaction nonstopmode -output-directory %o %f"
         "xelatex -interaction nonstopmode -output-directory %o %f"
         "xelatex -interaction nonstopmode -output-directory %o %f"))
@@ -37,14 +37,14 @@
       org-export-kill-product-buffer-when-displayed t
       org-export-odt-preferred-output-format "doc"
       org-tags-column 80
-      ;org-startup-indented t
+                                        ;org-startup-indented t
       )
 
-; Refile targets include this file and any file contributing to the agenda - up to 5 levels deep
+                                        ; Refile targets include this file and any file contributing to the agenda - up to 5 levels deep
 (setq org-refile-targets (quote ((nil :maxlevel . 5) (org-agenda-files :maxlevel . 5))))
-; Targets start with the file name - allows creating level 1 tasks
+                                        ; Targets start with the file name - allows creating level 1 tasks
 (setq org-refile-use-outline-path (quote file))
-; Targets complete in steps so we start with filename, TAB shows the next level of targets etc
+                                        ; Targets complete in steps so we start with filename, TAB shows the next level of targets etc
 (setq org-outline-path-complete-in-steps t)
 
 
@@ -81,22 +81,22 @@
      (define-key org-clock-mode-line-map [header-line mouse-1] 'org-clock-menu)))
 
 (eval-after-load 'org
-   '(progn
-      (require 'org-clock)
-      ; @see http://irreal.org/blog/?p=671
-      (setq org-src-fontify-natively t)
-      (require 'org-fstree)
-      (defun soft-wrap-lines ()
-        "Make lines wrap at window edge and on word boundary,
+  '(progn
+     (require 'org-clock)
+                                        ; @see http://irreal.org/blog/?p=671
+     (setq org-src-fontify-natively t)
+     (require 'org-fstree)
+     (defun soft-wrap-lines ()
+       "Make lines wrap at window edge and on word boundary,
         in current buffer."
-        (interactive)
-        (setq truncate-lines nil)
-        (setq word-wrap t)
-        )
-      (add-hook 'org-mode-hook '(lambda ()
-                                  (setq evil-auto-indent nil)
-                                  (soft-wrap-lines)
-                                  ))))
+       (interactive)
+       (setq truncate-lines nil)
+       (setq word-wrap t)
+       )
+     (add-hook 'org-mode-hook '(lambda ()
+                                 (setq evil-auto-indent nil)
+                                 (soft-wrap-lines)
+                                 ))))
 
 (defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
   (let ((browse-url-browser-function
@@ -116,5 +116,65 @@
       '(elisp "lisp"
               emacs-lisp "lisp"))
 ;; }}
+
+(setq org-latex-default-class "latex")
+(unless (boundp 'org-latex-classes)
+  (setq org-latex-classes '()))
+
+(add-to-list 'org-latex-classes
+             '("ctexart"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexart}"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+(add-to-list 'org-latex-classes
+             '("ctexrep"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexrep}"
+               ("\\part{%s}" . "\\part*{%s}")
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+(add-to-list 'org-latex-classes
+             '("ctexbook"
+               "\\documentclass[fancyhdr,fntef,nofonts,UTF8,a4paper,cs4size]{ctexbook}"
+               ("\\part{%s}" . "\\part*{%s}")
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+(add-to-list 'org-latex-classes
+             '("beamer"
+               "\\documentclass{beamer}
+	       \\usepackage[fntef,nofonts,fancyhdr]{ctex}"
+               org-beamer-sectioning))
+
+(add-to-list 'org-latex-classes
+             '("hbuuthesis"
+               "\\documentclass[unicode]{hbuuthesis}
+ [DEFAULT-PACKAGES]
+ [NO-PACKAGES]
+ [EXTRA]"
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
+
+(add-to-list 'org-latex-classes
+             '("org-latex-cn"
+               "\\documentclass[a4paper]{article}
+\\usepackage[unicode,dvipdfm]{hyperref}
+\\usepackage{graphicx}
+\\usepackage{xeCJK}
+\\setCJKmainfont{Microsoft YaHei}
+[NO-DEFAULT-PACKAGES]
+[NO-PACKAGES]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
 (provide 'init-org)
