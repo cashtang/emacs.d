@@ -89,7 +89,8 @@ Default is multi3."
   :group 'helm-match-plugin)
 
 (defface helm-match
-    '((t (:inherit match)))
+  '((((background light)) :foreground "#b00000")
+    (((background dark))  :foreground "gold1"))
   "Face used to highlight matches."
   :group 'helm-match-plugin)
 
@@ -273,7 +274,7 @@ e.g ((identity . \"foo\") (identity . \"bar\"))."
                       (cons 'not (substring pat 1))
                     (cons 'identity pat)))))
 
-(defun helm-mp-3-match (str &optional pattern)
+(cl-defun helm-mp-3-match (str &optional (pattern helm-pattern))
   "Check if PATTERN match STR.
 When PATTERN contain a space, it is splitted and matching is done
 with the several resulting regexps against STR.
@@ -284,9 +285,9 @@ e.g \"foo bar\"=>((identity . \"foo\") (identity . \"bar\")).
 Then each predicate of cons cell(s) is called with regexp of same
 cons cell against STR (a candidate).
 i.e (identity (string-match \"foo\" \"foo bar\")) => t."
-  (let ((pat (helm-mp-3-get-patterns (or pattern helm-pattern))))
+  (let ((pat (helm-mp-3-get-patterns pattern)))
     (cl-loop for (predicate . regexp) in pat
-          always (funcall predicate (string-match regexp str)))))
+             always (funcall predicate (string-match regexp str)))))
 
 (defun helm-mp-3-search-base (pattern searchfn1 searchfn2)
   "Try to find PATTERN in `helm-buffer' with SEARCHFN1 and SEARCHFN2.
@@ -296,16 +297,23 @@ instead of matching on a string.
 i.e (identity (re-search-forward \"foo\" (point-at-eol) t)) => t."
   (cl-loop with pat = (if (stringp pattern)
                           (helm-mp-3-get-patterns pattern)
-                        pattern)
-        while (funcall searchfn1 (or (cdar pat) "") nil t)
-        for bol = (point-at-bol)
-        for eol = (point-at-eol)
-        if (cl-loop for (pred . str) in (cdr pat) always
-                 (progn (goto-char bol)
-                        (funcall pred (funcall searchfn2 str eol t))))
-        do (goto-char eol) and return t
-        else do (goto-char eol)
-        finally return nil))
+                          pattern)
+           when (eq (caar pat) 'not) return
+           (prog1 (list (point-at-bol) (point-at-eol))
+             (forward-line 1))
+           while (condition-case _err
+                     (funcall searchfn1 (or (cdar pat) "") nil t)
+                   (invalid-regexp nil))
+           for bol = (point-at-bol)
+           for eol = (point-at-eol)
+           if (cl-loop for (pred . str) in (cdr pat) always
+                       (progn (goto-char bol)
+                              (funcall pred (condition-case _err
+                                                (funcall searchfn2 str eol t)
+                                              (invalid-regexp nil)))))
+           do (goto-char eol) and return t
+           else do (goto-char eol)
+           finally return nil))
 
 (defun helm-mp-3-search (pattern &rest _ignore)
   (when (stringp pattern)
@@ -372,10 +380,8 @@ e.g \"bar foo\" will match \"barfoo\" but not \"foobar\" contrarily to
                                    (defsearch
                                     (append searchers defsearch))
                                    (t searchers))))
-      `(,(if (or (assoc 'candidates-in-buffer source)
-                 (equal '(identity) matchfns))
-             '(match identity) `(match ,@matchfns))
-         (search ,@searchfns)
+      `(,(if (assoc 'candidates-in-buffer source)
+             `(search ,@searchfns) `(match ,@matchfns))
          ,@source))))
 
 

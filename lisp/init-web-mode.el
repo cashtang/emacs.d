@@ -1,4 +1,5 @@
 (autoload 'web-mode "web-mode")
+(require 'web-mode)
 (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.wp\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.tmpl\\'" . web-mode))
@@ -43,5 +44,9 @@
                          'web-mode-yasnippet-exit-hook t)
             (remove-hook 'yas/after-exit-snippet-hook
                          'web-mode-yasnippet-exit-hook t)
+            (setq web-mode-css-indent-offset 2)
+            (setq web-mode-code-indent-offset 2)
+            (setq web-mode-markup-indent-offset 2)
+            (setq web-mode-comment-style 2)
             ))
 (provide 'init-web-mode)

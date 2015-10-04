@@ -46,7 +46,7 @@ It is a float, usually 1024.0 but could be 1000.0 on some systems."
   :group 'helm-utils
   :type 'float)
 
-(defvar helm-goto-line-before-hook nil
+(defvar helm-goto-line-before-hook '(helm-save-current-pos-to-mark-ring)
   "Run before jumping to line.
 This hook run when jumping from `helm-goto-line', `helm-etags-default-action',
 and `helm-imenu-default-action'.")
@@ -297,9 +297,8 @@ With a numeric prefix arg show only the ARG number of candidates."
   (with-helm-window
     (with-helm-default-directory helm-default-directory
         (let ((helm-candidate-number-limit (and (> arg 1) arg)))
-          (save-window-excursion
-            (helm-set-source-filter
-             (list (assoc-default 'name (helm-get-current-source)))))))))
+          (helm-set-source-filter
+           (list (assoc-default 'name (helm-get-current-source))))))))
 
 ;;;###autoload
 (defun helm-display-all-sources ()
@@ -333,25 +332,6 @@ even is \" -b\" is specified."
       (string-match
        (replace-regexp-in-string " -b\\'" "" helm-pattern)
        candidate))))
-
-(defun helm--mapconcat-candidate (candidate)
-  "Transform string CANDIDATE in regexp.
-e.g helm.el$
-    => \"[^h]*h[^e]*e[^l]*l[^m]*m[^.]*[.][^e]*e[^l]*l$\"
-    ^helm.el$
-    => \"helm[.]el$\"."
-  (let ((ls (split-string candidate "" t)))
-    (if (string= "^" (car ls))
-        (mapconcat (lambda (c)
-                     (if (string= c ".")
-                         (concat "[" c "]") c))
-                   (cdr ls) "")
-      (mapconcat (lambda (c)
-                   (cond ((string= c ".")
-                          (concat "[^" c "]*" (concat "[" c "]")))
-                         ((string= c "$") c)
-                         (t (concat "[^" c "]*" (regexp-quote c)))))
-                 ls ""))))
 
 (defun helm-skip-entries (seq regexp-list)
   "Remove entries which matches one of REGEXP-LIST from SEQ."
@@ -436,7 +416,9 @@ from its directory."
        (helm-find-files-1 f)))
    (let* ((sel       (helm-get-selection))
           (grep-line (and (stringp sel)
-                          (helm-grep-split-line sel))))
+                          (helm-grep-split-line sel)))
+          (bmk-name  (replace-regexp-in-string "\\`\\*" "" sel))
+          (bmk       (assoc bmk-name bookmark-alist)))
      (if (stringp sel)
          (helm-aif (get-buffer (or (get-text-property
                                     (1- (length sel)) 'buffer-name sel)
@@ -448,7 +430,12 @@ from its directory."
                       org-directory
                       (expand-file-name org-directory))
                  (with-current-buffer it default-directory))
-           (cond ((or (file-remote-p sel)
+           (cond (bmk (helm-aif (bookmark-get-filename bmk)
+                          (if (and ffap-url-regexp
+                                   (string-match ffap-url-regexp it))
+                              it (expand-file-name it))
+                        default-directory))
+                 ((or (file-remote-p sel)
                       (file-exists-p sel))
                   (expand-file-name sel))
                  ((and grep-line (file-exists-p (car grep-line)))
@@ -557,14 +544,14 @@ Return nil on valid file name remote or not."
     (when (and meth (<= (length split) 2))
       (cadr split))))
 
-(defun helm-file-human-size (size)
+(cl-defun helm-file-human-size (size &optional (kbsize helm-default-kbsize))
   "Return a string showing SIZE of a file in human readable form.
 SIZE can be an integer or a float depending it's value.
 `file-attributes' will take care of that to avoid overflow error.
-KBSIZE if a floating point number, default value is 1024.0."
-  (let ((M (cons "M" (/ size (expt helm-default-kbsize 2))))
-        (G (cons "G" (/ size (expt helm-default-kbsize 3))))
-        (K (cons "K" (/ size helm-default-kbsize)))
+KBSIZE if a floating point number, defaulting to `helm-default-kbsize'."
+  (let ((M (cons "M" (/ size (expt kbsize 2))))
+        (G (cons "G" (/ size (expt kbsize 3))))
+        (K (cons "K" (/ size kbsize)))
         (B (cons "B" size)))
     (cl-loop with result = B
           for (a . b) in
@@ -843,7 +830,8 @@ directory, open this directory."
       (find-file (concat "/" helm-su-or-sudo "::" (expand-file-name candidate))))))
 
 (defun helm-find-many-files (_ignore)
-  (mapc 'find-file (helm-marked-candidates)))
+  (let ((helm--reading-passwd-or-string t))
+    (mapc 'find-file (helm-marked-candidates))))
 
 (defun helm-goto-line-with-adjustment (line line-content)
   (let ((startpos)
@@ -916,7 +904,12 @@ grabs the entire symbol."
 (defun helm-reset-yank-point ()
   (setq helm-yank-point nil))
 
-(add-hook 'helm-after-persistent-action-hook 'helm-reset-yank-point)
+;; FIXME why do we run this after PA?
+;; Seems it is not needed, thus it create a bug
+;; when we want to hit repetitively C-w and follow-mode is enabled,
+;; or if we run a PA between to hits on C-w.
+;; Keep this commented for now.
+;(add-hook 'helm-after-persistent-action-hook 'helm-reset-yank-point)
 (add-hook 'helm-cleanup-hook 'helm-reset-yank-point)
 (add-hook 'helm-after-initialize-hook 'helm-reset-yank-point)
 

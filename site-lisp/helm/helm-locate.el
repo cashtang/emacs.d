@@ -231,7 +231,7 @@ See also `helm-locate'."
          (format helm-locate-command
                  (cl-case helm-locate-case-fold-search
                    (smart (let ((case-fold-search nil))
-                            (if (string-match "[A-Z]" helm-pattern)
+                            (if (string-match "[[:upper:]]" helm-pattern)
                                 case-sensitive-flag
                               ignore-case-flag)))
                    (t (if helm-locate-case-fold-search
@@ -250,7 +250,7 @@ See also `helm-locate'."
                (with-helm-window
                  (setq mode-line-format
                        '(" " mode-line-buffer-identification " "
-                         (line-number-mode "%l") " "
+                         (:eval (format "L%s" (helm-candidate-number-at-point))) " "
                          (:eval (propertize
                                  (format "[Locate Process Finish- (%s results)]"
                                          (max (1- (count-lines

@@ -12,8 +12,8 @@
         "xelatex -interaction nonstopmode -output-directory %o %f"))
 ;; }}
 
-(if (and *is-a-mac* (file-exists-p "/Applications/LibreOffice.app/Contents/MacOS/soffice"))
-    (setq org-export-odt-convert-processes '(("LibreOffice" "/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i"))))
+(if (and *is-a-mac* (file-exists-p "/Users/tangcheng/Applications/LibreOffice.app/Contents/MacOS/soffice"))
+    (setq org-export-odt-convert-processes '(("LibreOffice" "/Users/tangcheng/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to %f%x --outdir %d %i"))))
 
 ;; @see https://gist.github.com/mwfogleman/95cc60c87a9323876c6c
 (defun narrow-or-widen-dwim ()
@@ -37,9 +37,16 @@
       org-export-kill-product-buffer-when-displayed t
       org-export-odt-preferred-output-format "doc"
       org-tags-column 80
+      org-enforce-todo-dependencies t
                                         ;org-startup-indented t
       )
 
+(setq org-log-done 'note)
+
+
+(setq org-agenda-files (quote ("~/Dropbox/deft-nodes/home-scheduler.org"
+                               "~/Dropbox/deft-nodes/quarter_work.org"
+                               "~/Dropbox/deft-nodes/work-scheduler.org")))
                                         ; Refile targets include this file and any file contributing to the agenda - up to 5 levels deep
 (setq org-refile-targets (quote ((nil :maxlevel . 5) (org-agenda-files :maxlevel . 5))))
                                         ; Targets start with the file name - allows creating level 1 tasks
@@ -57,6 +64,8 @@
 ;; Org clock
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(setq org-html-table-default-attributes '(:border "2" :rules "all" :frame "border"))
+(setq org-indent-mode t)
 ;; Change task state to STARTED when clocking in
 (setq org-clock-in-switch-to-state "STARTED")
 ;; Save clock data and notes in the LOGBOOK drawer
@@ -110,7 +119,7 @@
     ad-do-it))
 
 ;; {{ org2nikola set up
-(setq org2nikola-output-root-directory "~/projs/blog.binchen.org")
+(setq org2nikola-output-root-directory "~/Dropbox/proj.tc.org")
 (setq org2nikola-use-google-code-prettify t)
 (setq org2nikola-prettify-unsupported-language
       '(elisp "lisp"
@@ -162,13 +171,103 @@
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")))
 
+;; (add-to-list 'org-latex-classes
+;;              '("org-latex-cn"
+;;                "\\documentclass[11pt]{article}
+;; \\usepackage[unicode,dvipdfm]{hyperref}
+;; \\usepackage{graphicx}
+;; \\usepackage{xeCJK,fontspec}
+;; \\setmainfont{Arial}
+;; \\setsansfont{Helvetica}
+;; \\setmonofont{Courier New}
+;; \\setCJKmainfont[BoldFont = Hiragino Sans GB W6]{Hiragino Sans GB W3}
+;; \\setCJKsansfont{宋体}
+;; \\setCJKmonofont{WenQuanYi Zen Hei Mono}
+;; [NO-DEFAULT-PACKAGES]
+;; [NO-PACKAGES]"
+;;                ("\\section{%s}" . "\\section*{%s}")
+;;                ("\\subsection{%s}" . "\\subsection*{%s}")
+;;                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+;;                ("\\paragraph{%s}" . "\\paragraph*{%s}")
+;;                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+;; (add-to-list 'org-latex-classes
+;;              '("org-latex-cn"
+;;                "\\documentclass[10pt,a4paper]{article}
+;; \\usepackage{graphicx}
+;; \\usepackage{xcolor}
+;; \\usepackage{xeCJK}
+;; \\usepackage{lmodern}
+;; \\usepackage{verbatim}
+;; \\usepackage{fixltx2e}
+;; \\usepackage{longtable}
+;; \\usepackage{float}
+;; \\usepackage{tikz}
+;; \\usepackage{wrapfig}
+;; \\usepackage{soul}
+;; \\usepackage{textcomp}
+;; \\usepackage{listings}
+;; \\usepackage{geometry}
+;; \\usepackage{algorithm}
+;; \\usepackage{algorithmic}
+;; \\usepackage{marvosym}
+;; \\usepackage{wasysym}
+;; \\usepackage{latexsym}
+;; \\usepackage{natbib}
+;; \\usepackage{fancyhdr}
+;; \\usepackage[xetex,colorlinks=true,CJKbookmarks=true,linkcolor=blue,urlcolor=blue,menucolor=blue]{hyperref}
+;; \\usepackage{fontspec,xunicode,xltxtra}
+;; \\setmainfont[BoldFont=Adobe Heiti Std]{Adobe Song Std}
+;; \\setsansfont{Helvetica}
+;; \\setmonofont{Courier New}
+;; \\newcommand\\fontnamemono{AR PL UKai CN}%等宽字体
+;; \\newfontinstance\\MONO{\\fontnamemono}
+;; \\newcommand{\\mono}[1]{{\\MONO #1}}
+;; \\setCJKmainfont[Scale=0.9]{Adobe Heiti Std}%中文字体
+;; \\setCJKmonofont[Scale=0.9]{Adobe Heiti Std}
+;; \\hypersetup{unicode=true}
+;; \\geometry{a4paper, textwidth=6.5in, textheight=10in,marginparsep=7pt, marginparwidth=.6in}
+;; \\definecolor{foreground}{RGB}{220,220,204}%浅灰
+;; \\definecolor{background}{RGB}{62,62,62}%浅黑
+;; \\definecolor{preprocess}{RGB}{250,187,249}%浅紫
+;; \\definecolor{var}{RGB}{239,224,174}%浅肉色
+;; \\definecolor{string}{RGB}{154,150,230}%浅紫色
+;; \\definecolor{type}{RGB}{225,225,116}%浅黄
+;; \\definecolor{function}{RGB}{140,206,211}%浅天蓝
+;; \\definecolor{keyword}{RGB}{239,224,174}%浅肉色
+;; \\definecolor{comment}{RGB}{180,98,4}%深褐色
+;; \\definecolor{doc}{RGB}{175,215,175}%浅铅绿
+;; \\definecolor{comdil}{RGB}{111,128,111}%深灰
+;; \\definecolor{constant}{RGB}{220,162,170}%粉红
+;; \\definecolor{buildin}{RGB}{127,159,127}%深铅绿
+;; \\punctstyle{kaiming}
+;; \\title{}
+;; \\fancyfoot[C]{\\bfseries\\thepage}
+;; \\chead{\\MakeUppercase\\sectionmark}
+;; \\pagestyle{fancy}
+;; \\tolerance=1000
+;; [NO-DEFAULT-PACKAGES]
+;; [NO-PACKAGES]"
+;; ("\\section{%s}" . "\\section*{%s}")
+;; ("\\subsection{%s}" . "\\subsection*{%s}")
+;; ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+;; ("\\paragraph{%s}" . "\\paragraph*{%s}")
+;; ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
 (add-to-list 'org-latex-classes
-             '("org-latex-cn"
-               "\\documentclass[a4paper]{article}
-\\usepackage[unicode,dvipdfm]{hyperref}
-\\usepackage{graphicx}
-\\usepackage{xeCJK}
-\\setCJKmainfont{Microsoft YaHei}
+             '("org-latex-class"
+               "\\documentclass[11pt,a4paper]{article}
+\\XeTeXlinebreaklocale "zh"
+\\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt
+\\usepackage[top=1in,bottom=1in,left=1.25in,right=1.25in]{geometry}
+\\usepackage{float}
+\\usepackage{fontspec}
+\\newfontfamily\\zhfont[BoldFont=Adobe Heiti Std]{Adobe Song Std}
+\\newfontfamily\\zhpunctfont{Adobe Song Std}
+\\setmainfont{Times New Roman}
+\\usepackage{indentfirst}
+\\usepackage{zhspacing}
+\\zhspacing
 [NO-DEFAULT-PACKAGES]
 [NO-PACKAGES]"
                ("\\section{%s}" . "\\section*{%s}")
@@ -177,4 +276,104 @@
                ("\\paragraph{%s}" . "\\paragraph*{%s}")
                ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
+;; Set to the location of your Org files on your local system
+(setq org-directory "~/Dropbox/deft-nodes")
+;; Set to the name of the file where new notes will be stored
+(setq org-mobile-inbox-for-pull "~/Dropbox/deft-nodes/flagged.org")
+;; Set to <your Dropbox root directory>/MobileOrg.
+(setq org-mobile-directory "~/Dropbox/应用/MobileOrg")
+
+
+(org-babel-do-load-languages
+  'org-babel-load-languages
+  '(;; other Babel languages
+    (ditaa . t)
+    (dot . t)
+    ))
+
+(setq org-ditaa-jar-path (expand-file-name "/usr/local/Cellar/ditaa/0.9/libexec/ditaa0_9.jar"))
+
+;; (require 'remember)
+;; (setq remember-annotation-functions '(org-remember-annotation))
+;; (setq remmeber-handler-functions '(org-remember-hanlder))
+;; (add-hook 'remember-mode-hook 'org-remember-apply-template)
+;; (define-key global-map [(control meta ?r)] 'remember)
+;; (add-hook 'remember-mode-hook 'org-remember-apply-template)
+(setq org-export-with-sub-superscripts nil)
+
+;;; org-export-blocks-format-plantuml.el Export UML using plantuml
+;;
+;; OBSOLETED, use ob-plantuml.el bundled in org instead.
+;;
+;; Copy from org-export-blocks-format-ditaa
+;;
+;; E.g.
+;; #+BEGIN_UML
+;;   Alice -> Bob: Authentication Request
+;;   Bob --> Alice: Authentication Response
+;; #+END_UML
+
+(eval-after-load "org-exp-blocks"
+  '(progn
+    (add-to-list 'org-export-blocks '(uml iy/org-export-blocks-format-plantuml nil))
+    (add-to-list 'org-protecting-blocks "uml")))
+
+(defvar iy/org-plantuml-jar-path (expand-file-name "/usr/local/Cellar/plantuml/8015/plantuml.8015.jar")
+  "Path to the plantuml jar executable.")
+
+(defun iy/org-export-blocks-format-plantuml (body &rest headers)
+  "Pass block BODY to the plantuml utility creating an image.
+  Specify the path at which the image should be saved as the first
+  element of headers, any additional elements of headers will be
+  passed to the plantuml utility as command line arguments."
+  (message "plantuml-formatting...")
+  (let* ((args (if (cdr headers) (mapconcat 'identity (cdr headers) " ")))
+         (data-file (make-temp-file "org-plantuml"))
+         (hash (progn
+                 (set-text-properties 0 (length body) nil body)
+                 (sha1 (prin1-to-string (list body args)))))
+         (raw-out-file (if headers (car headers)))
+         (out-file-parts (if (string-match "\\(.+\\)\\.\\([^\\.]+\\)$" raw-out-file)
+                             (cons (match-string 1 raw-out-file)
+                                   (match-string 2 raw-out-file))
+                           (cons raw-out-file "png")))
+         (out-file (concat (car out-file-parts) "_" hash "." (cdr out-file-parts))))
+    (unless (file-exists-p iy/org-plantuml-jar-path)
+      (error (format "Could not find plantuml.jar at %s" iy/org-plantuml-jar-path)))
+    (setq body (if (string-match "^\\([^:\\|:[^ ]\\)" body)
+                   body
+                 (mapconcat (lambda (x) (substring x (if (> (length x) 1) 2 1)))
+                            (org-split-string body "\n")
+                            "\n")))
+    (cond
+     ((or htmlp latexp docbookp)
+      (unless (file-exists-p out-file)
+        (mapc ;; remove old hashed versions of this file
+         (lambda (file)
+           (when (and (string-match (concat (regexp-quote (car out-file-parts))
+                                            "_\\([[:alnum:]]+\\)\\."
+                                            (regexp-quote (cdr out-file-parts)))
+                                    file)
+                      (= (length (match-string 1 out-file)) 40))
+             (delete-file (expand-file-name file
+                                            (file-name-directory out-file)))))
+         (directory-files (or (file-name-directory out-file)
+                              default-directory)))
+        (with-temp-file data-file (insert (concat "@startuml\n" body "\n@enduml")))
+        (message (concat "java -jar " iy/org-plantuml-jar-path " -pipe " args))
+        (with-temp-buffer
+          (call-process-shell-command
+           (concat "java -jar " iy/org-plantuml-jar-path " -pipe " args)
+           data-file
+           '(t nil))
+          (write-region nil nil out-file)))
+      (format "\n[[file:%s]]\n" out-file))
+     (t (concat
+         "\n#+BEGIN_EXAMPLE\n"
+         body (if (string-match "\n$" body) "" "\n")
+         "#+END_EXAMPLE\n")))))
+
+;; (require 'ox-latex)
+;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+;; (setq org-latex-listings 'minted)
 (provide 'init-org)

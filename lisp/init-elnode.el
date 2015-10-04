@@ -17,6 +17,7 @@
     (elnode-stop elnodeext-port)
     (elnode-start (elnode-webserver-handler-maker webdir) :port elnodeext-port :host "localhost")
     (message "directory %s served at http://localhost:%d" webdir elnodeext-port)
+    (setq elnode-error-log-to-messages nil)
     )
   )
 

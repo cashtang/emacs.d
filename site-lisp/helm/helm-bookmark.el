@@ -24,6 +24,9 @@
 (require 'helm-adaptive)
 
 (declare-function addressbook-bookmark-edit "ext:addressbook-bookmark.el" (bookmark))
+(declare-function message-buffers "message.el")
+(declare-function addressbook-set-mail-buffer-1 "ext:addressbook-bookmark.el"
+                  (&optional bookmark-name append cc))
 
 
 (defgroup helm-bookmark nil
@@ -79,29 +82,21 @@
     (define-key map (kbd "C-d")   'helm-bookmark-run-delete)
     (define-key map (kbd "C-]")   'helm-bookmark-toggle-filename)
     (define-key map (kbd "M-e")   'helm-bookmark-run-edit)
-    (when (locate-library "bookmark-extensions")
-      (define-key map (kbd "M-F") 'helm-bmkext-run-sort-by-frequency)
-      (define-key map (kbd "M-V") 'helm-bmkext-run-sort-by-last-visit)
-      (define-key map (kbd "M-A") 'helm-bmkext-run-sort-alphabetically))
     (define-key map (kbd "C-c ?") 'helm-bookmark-help)
-    (delq nil map))
+    map)
   "Generic Keymap for emacs bookmark sources.")
 
-(defvar helm-bookmarks-cache nil)
+(defclass helm-source-basic-bookmarks (helm-source-in-buffer helm-type-bookmark)
+   ((init :initform (lambda ()
+                      (bookmark-maybe-load-default-file)
+                      (helm-init-candidates-in-buffer
+                          'global
+                        (bookmark-all-names))))
+    (filtered-candidate-transformer :initform 'helm-bookmark-transformer)
+    (search :initform 'helm-bookmark-search-fn)))
+
 (defvar helm-source-bookmarks
-  '((name . "Bookmarks")
-    (init . (lambda ()
-              (require 'bookmark)
-              (setq helm-bookmark-mode-line-string
-                    (list (car helm-bookmark-mode-line-string)
-                          (replace-regexp-in-string "Sort:\\[.*\\] " ""
-                                                    (cadr helm-bookmark-mode-line-string))))                          
-              (setq helm-bookmarks-cache
-                    (bookmark-all-names))))
-    (candidates . helm-bookmarks-cache)
-    (filtered-candidate-transformer . helm-bookmark-transformer)
-    (match . helm-bookmark-match-fn)
-    (type . bookmark))
+  (helm-make-source "Bookmarks" 'helm-source-basic-bookmarks)
   "See (info \"(emacs)Bookmarks\").")
 
 (defun helm-bookmark-transformer (candidates _source)
@@ -167,11 +162,7 @@
 (defvar helm-source-pp-bookmarks
   '((name . "PP-Bookmarks")
     (init . (lambda ()
-              (require 'bookmark)
-              (setq helm-bookmark-mode-line-string
-                    (list (car helm-bookmark-mode-line-string)
-                          (replace-regexp-in-string "Sort:\\[.*\\] " ""
-                                                    (cadr helm-bookmark-mode-line-string))))
+              (bookmark-maybe-load-default-file)
               (helm-init-candidates-in-buffer
                   'global (cl-loop for b in (bookmark-all-names) collect
                                 (propertize b 'location (bookmark-location b))))))
@@ -450,6 +441,19 @@ than `w3m-browse-url' use it."
 ;;; Addressbook.
 ;;
 ;;
+(defun helm-bookmark-addressbook-send-mail-1 (_candidate &optional cc)
+  (let* ((contacts (helm-marked-candidates))
+         (bookmark      (helm-bookmark-get-bookmark-from-name
+                         (car contacts)))
+         (append   (message-buffers)))
+    (addressbook-set-mail-buffer-1 bookmark append)
+    (helm-aif (cdr contacts)
+        (progn
+          (when cc (addressbook-set-mail-buffer-1 (car it) nil cc))
+          (cl-loop for bmk in (cdr it) do
+                   (addressbook-set-mail-buffer-1
+                    (helm-bookmark-get-bookmark-from-name bmk) 'append cc))))))
+
 (defvar helm-source-bookmark-addressbook
   '((name . "Bookmark Addressbook")
     (init . (lambda ()
@@ -481,19 +485,11 @@ than `w3m-browse-url' use it."
                             (cl-loop for bmk in it do
                                   (bookmark-jump
                                    (helm-bookmark-get-bookmark-from-name bmk))))))))
-               ("Send Mail"
-                . (lambda (candidate)
-                    (let* ((contacts (helm-marked-candidates))
-                           (bmk      (helm-bookmark-get-bookmark-from-name
-                                      (car contacts)))
-                           (append   (message-buffers)))
-                      (if append
-                          (addressbook-set-mail-buffer1 bmk 'append)
-                        (addressbook-set-mail-buffer1 bmk))
-                      (setq contacts (cdr contacts))
-                      (when contacts
-                        (cl-loop for bmk in contacts do
-                              (addressbook-set-mail-buffer1 bmk 'append))))))
+               ("Mail To" . helm-bookmark-addressbook-send-mail-1)
+               ("Mail Cc" . (lambda (_candidate)
+                              (helm-bookmark-addressbook-send-mail-1 nil 'cc)))
+               ("Mail Bcc" . (lambda (_candidate)
+                               (helm-bookmark-addressbook-send-mail-1 nil 'bcc)))
                ("Edit Bookmark"
                 . (lambda (candidate)
                     (let ((bmk (helm-bookmark-get-bookmark-from-name
@@ -642,7 +638,8 @@ BOOKMARK-NAME is the current (old) name of the bookmark to be renamed."
       (helm-bookmark-edit-bookmark-1 bookmark-name handler))))
 
 (defun helm-bookmark-edit-bookmark-1 (bookmark-name handler)
-  (let* ((bookmark-fname (bookmark-get-filename bookmark-name))
+  (let* ((helm--reading-passwd-or-string t)
+         (bookmark-fname (bookmark-get-filename bookmark-name))
          (bookmark-loc   (bookmark-prop-get bookmark-name 'location))
          (new-name       (read-from-minibuffer "Name: " bookmark-name))
          (new-loc        (read-from-minibuffer "FileName or Location: "
@@ -709,15 +706,15 @@ words from the buffer into the new bookmark name."
 ;;
 (define-helm-type-attribute 'bookmark
     `((coerce . helm-bookmark-get-bookmark-from-name)
-      (action
-       ("Jump to bookmark" . helm-bookmark-jump)
-       ("Jump to BM other window" . helm-bookmark-jump-other-window)
-       ("Bookmark edit annotation" . bookmark-edit-annotation)
-       ("Bookmark show annotation" . bookmark-show-annotation)
-       ("Delete bookmark(s)" . helm-delete-marked-bookmarks)
-       ("Edit Bookmark" . helm-bookmark-edit-bookmark)
-       ("Rename bookmark" . helm-bookmark-rename)
-       ("Relocate bookmark" . bookmark-relocate))
+      (action . ,(helm-make-actions
+                  "Jump to bookmark" 'helm-bookmark-jump
+                  "Jump to BM other window" 'helm-bookmark-jump-other-window
+                  "Bookmark edit annotation" 'bookmark-edit-annotation
+                  "Bookmark show annotation" 'bookmark-show-annotation
+                  "Delete bookmark(s)" 'helm-delete-marked-bookmarks
+                  "Edit Bookmark" 'helm-bookmark-edit-bookmark
+                  "Rename bookmark" 'helm-bookmark-rename
+                  "Relocate bookmark" 'bookmark-relocate))
       (keymap . ,helm-bookmark-map)
       (mode-line . helm-bookmark-mode-line-string))
   "Bookmark name.")
@@ -739,7 +736,7 @@ words from the buffer into the new bookmark name."
 (defun helm-bookmark-get-bookmark-from-name (bmk)
   "Return bookmark name even if it is a bookmark with annotation.
 e.g prepended with *."
-  (let ((bookmark (replace-regexp-in-string "\\*" "" bmk)))
+  (let ((bookmark (replace-regexp-in-string "\\`\\*" "" bmk)))
     (if (assoc bookmark bookmark-alist) bookmark bmk)))
 
 (defun helm-delete-marked-bookmarks (_ignore)

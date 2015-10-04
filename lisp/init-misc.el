@@ -347,10 +347,12 @@ grab matched string, jsonize them, and insert into kill ring"
    two prefix arguments, write out the day and month name."
     (interactive "P")
     (let ((format (cond
-                   ((not prefix) "%d.%m.%Y")
+                   ((not prefix) "%Y.%m.%d")
                    ((equal prefix '(4)) "%Y-%m-%d")
                    ((equal prefix '(16)) "%d %B %Y")))
           )
+      (when (use-region-p)
+        (delete-region (region-beginning) (region-end)))
       (insert (format-time-string format))))
 
 (defun insert-blog-version ()
@@ -1030,9 +1032,5 @@ The full path into relative path insert it as a local file link in org-mode"
     (setenv "GPG_AGENT_INFO" nil)
     ad-do-it
     (setenv "GPG_AGENT_INFO" agent)))
-
-;; {{go-mode
-(require 'go-mode-load)
-;; }}
 
 (provide 'init-misc)

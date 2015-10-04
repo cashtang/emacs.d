@@ -1,4 +1,5 @@
 (require 'helm-config)
+(require 'async)
 
 ;; (helm-mode 1)
 

@@ -14,7 +14,7 @@
 (setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
 (setq *unix* (or *linux* (eq system-type 'usg-unix-v) (eq system-type 'berkeley-unix)) )
 (setq *linux-x* (and window-system *linux*) )
-(setq *xemacs* (featurep 'xemacs) )
+(setq *xemacs* (featurep 'xemacs))
 (setq *emacs23* (and (not *xemacs*) (or (>= emacs-major-version 23))) )
 (setq *emacs24* (and (not *xemacs*) (or (>= emacs-major-version 24))) )
 (setq *no-memory* (cond
@@ -141,6 +141,16 @@
 ;; misc has some crucial tools I need immediately
 (require 'init-misc)
 (require 'init-deft)
+;; (require 'init-virtualenv)
+;; (require 'init-elpy)
+
+(require 'e2wm)
+(global-set-key (kbd "M-+") 'e2wm:start-management)
+(provide 'init-e2wm)
+
+(require 'init-auto-complete)
+(require 'init-gomode)
+;; (require 'imenu-go)
 
 (setq idle-require-idle-delay 3)
 (setq idle-require-symbols '(init-lisp
@@ -171,7 +181,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(bmkp-last-as-first-bookmark-file "~/.emacs.d/.bookmarks.el")
- '(ede-project-directories (quote ("/Users/tangcheng/works/ecard/core/netsvr")))
  '(safe-local-variable-values
    (quote
     ((emacs-lisp-docstring-fill-column . 75)
@@ -191,3 +200,4 @@
 ;;; no-byte-compile: t
 ;;; End:
 (put 'erase-buffer 'disabled nil)
+

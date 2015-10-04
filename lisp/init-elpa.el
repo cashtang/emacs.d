@@ -78,7 +78,18 @@ ARCHIVE is the string name of the package archive.")
 ;; (setq package-archives '(("melpa" . "http://melpa.org/packages/")
 ;;                          ("melpa-stable" . "http://stable.melpa.org/packages/")
 ;;                          ))
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '(("melpa" . "http://melpa.mailbox.net/packages/")
+;; (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+;; (setq package-archives '(("melpa" . "http://melpa.org/packages/")
+;;                          ("melpa" . "http://melpa.mailbox.net/packages/")
+;;                           ("elpy" . "http://jorgenschaefer.github.io/packages/")))
+
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/"))
+
+(when (< emacs-major-version 24)
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
 ;; (add-to-list 'package-archives
 ;;              '("melpa" . "http://melpa.milkbox.net/packages/") t)
@@ -94,74 +105,75 @@ ARCHIVE is the string name of the package archive.")
 (package-initialize)
 
 (defvar melpa-include-packages
-  '(bbdb
-    json-rpc
-    kv
-    color-theme
-    anaconda-mode
-    wgrep
-    robe
-    inf-ruby
-    dsvn
-    move-text
-    findr
-    mwe-log-commands
-    dired-details
-    yaml-mode
-    noflet
-    db
-    creole
-    web
-    elnode
-    sass-mode
-    idomenu
-    pointback
-    buffer-move
-    regex-tool
-    csharp-mode
-    switch-window
-    cmake-mode
-    sr-speedbar
-    quack
-    iedit
-    legalese
-    htmlize
-    scratch
-    mic-paren
-    session
-    crontab-mode
-    bookmark+
-    flymake-lua
-    multi-term
-    dired+
-    inflections
-    dropdown-list
-    lua-mode
-    pomodoro
-    helm
-    auto-compile
-    packed
-    gitconfig-mode
-    project-local-variables
-    org-fstree
-    textile-mode
-    pretty-mode
-    auto-complete-clang
-    w3m
-    fakir
-    erlang
-    virutalenvwrapper
-    fancy-narrow)
-  "Don't install any Melpa packages except these packages")
+  nil
+;;   '(bbdb
+;;     json-rpc
+;;     kv
+;;     color-theme
+;;     anaconda-mode
+;;     wgrep
+;;     robe
+;;     inf-ruby
+;;     dsvn
+;;     move-text
+;;     findr
+;;     mwe-log-commands
+;;     dired-details
+;;     yaml-mode
+;;     noflet
+;;     db
+;;     creole
+;;     web
+;;     elnode
+;;     sass-mode
+;;     idomenu
+;;     pointback
+;;     buffer-move
+;;     regex-tool
+;;     csharp-mode
+;;     switch-window
+;;     cmake-mode
+;;     sr-speedbar
+;;     quack
+;;     iedit
+;;     legalese
+;;     htmlize
+;;     scratch
+;;     mic-paren
+;;     session
+;;     crontab-mode
+;;     bookmark+
+;;     flymake-lua
+;;     multi-term
+;;     dired+
+;;     inflections
+;;     dropdown-list
+;;     lua-mode
+;;     pomodoro
+;;     helm
+;;     auto-compile
+;;     packed
+;;     gitconfig-mode
+;;     project-local-variables
+;;     org-fstree
+;;     textile-mode
+;;     pretty-mode
+;;     auto-complete-clang
+;;     w3m
+;;     fakir
+;;     erlang
+;;     virutalenvwrapper
+;;     fancy-narrow)
+   "Don't install any Melpa packages except these packages")
 
 ;; Don't take Melpa versions of certain packages
-(setq package-filter-function
-      (lambda (package version archive)
-        (and
-         (not (memq package '(eieio)))
-         (or (and (string-equal archive "melpa") (memq package melpa-include-packages))
-             (not (string-equal archive "melpa")))
-         )))
+;; (setq package-filter-function
+;;       (lambda (package version archive)
+;;         (and
+;;          (not (memq package '(eieio)))
+;;          (or (and (string-equal archive "melpa") (memq package melpa-include-packages))
+;;              (not (string-equal archive "melpa")))
+;;          )))
 
 ;; un-comment below code if you prefer use all the package on melpa (unstable) without limitation
 ;; (setq package-filter-function nil)

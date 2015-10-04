@@ -1,6 +1,6 @@
 #name : DITAA
 #contributor : Rick Moynihan <rick@sourcesmouth.co.uk>
 # --
-#+BEGIN_DITAA ${1:export-file-name} -r -S -E
+#+BEGIN_SRC ditaa :file ${1:export-file-name} :cmdline -r -S -E
 ${0}
-#+END_DITAA
+#+END_SRC

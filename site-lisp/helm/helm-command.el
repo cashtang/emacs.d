@@ -93,9 +93,10 @@ Return nil if no mode-map found."
       (helm-M-x-get-major-mode-command-alist (symbol-value map)))))
 
 
-(defun helm-M-x-transformer (candidates _source)
+(defun helm-M-x-transformer-1 (candidates &optional sort)
   "filtered-candidate-transformer to show bindings in emacs commands.
-Show global bindings and local bindings according to current `major-mode'."
+Show global bindings and local bindings according to current `major-mode'.
+If SORT is non nil sort list with `helm-generic-sort-fn'."
   (with-helm-current-buffer
     (cl-loop with local-map = (helm-M-x-current-mode-map-alist)
           for cand in candidates
@@ -115,7 +116,15 @@ Show global bindings and local bindings according to current `major-mode'."
                 cand)
           into ls
           finally return
-          (sort ls #'helm-generic-sort-fn))))
+          (if sort (sort ls #'helm-generic-sort-fn) ls))))
+
+(defun helm-M-x-transformer (candidates _source)
+  "Transformer function for `helm-M-x' candidates."
+  (helm-M-x-transformer-1 candidates 'sort))
+
+(defun helm-M-x-transformer-hist (candidates _source)
+  "Transformer function for `helm-M-x' candidates history."
+  (helm-M-x-transformer-1 candidates))
 
 (defun helm-M-x--notify-prefix-arg ()
   ;; Notify a prefix-arg set AFTER calling M-x.
@@ -153,25 +162,30 @@ You can get help on each command by persistent action."
                             (setq in-help t))
                           (setq help-cand candidate))))
          (tm (run-at-time 1 0.1 'helm-M-x--notify-prefix-arg)))
-    (setq current-prefix-arg nil)
     (unwind-protect
-         (setq command (helm-comp-read
-                        "M-x " obarray
-                        :test 'commandp
-                        :requires-pattern helm-M-x-requires-pattern
-                        :name "Emacs Commands"
-                        :buffer "*helm M-x*"
-                        :persistent-action pers-help
-                        :persistent-help "Describe this command"
-                        :history history
-                        :reverse-history helm-M-x-reverse-history
-                        :del-input nil
-                        :mode-line helm-M-x-mode-line
-                        :must-match t
-                        :nomark t
-                        :keymap helm-M-x-map
-                        :candidates-in-buffer t
-                        :fc-transformer 'helm-M-x-transformer))
+         (progn
+           (when current-prefix-arg
+             (user-error
+              "Error: Specifying a prefix arg before calling `helm-M-x'"))
+           (setq current-prefix-arg nil)
+           (setq command (helm-comp-read
+                          "M-x " obarray
+                          :test 'commandp
+                          :requires-pattern helm-M-x-requires-pattern
+                          :name "Emacs Commands"
+                          :buffer "*helm M-x*"
+                          :persistent-action pers-help
+                          :persistent-help "Describe this command"
+                          :history history
+                          :reverse-history helm-M-x-reverse-history
+                          :del-input nil
+                          :mode-line helm-M-x-mode-line
+                          :must-match t
+                          :nomark t
+                          :keymap helm-M-x-map
+                          :candidates-in-buffer t
+                          :fc-transformer 'helm-M-x-transformer
+                          :hist-fc-transformer 'helm-M-x-transformer-hist)))
       (cancel-timer tm)
       (setq helm--mode-line-display-prefarg nil))
     (setq sym-com (intern command))

@@ -73,6 +73,8 @@ If nil or zero (disabled), don't truncate candidate, show all."
                              (cl-loop for cand in (helm-marked-candidates)
                                    do (setq kill-ring
                                             (delete cand kill-ring)))))))
+    (persistent-action . (lambda (_candidate) (ignore)))
+    (persistent-help . "DoNothing")
     (keymap . ,helm-kill-ring-map)
     (last-command)
     (migemo)
@@ -88,21 +90,23 @@ If nil or zero (disabled), don't truncate candidate, show all."
 (defun helm-kill-ring-transformer (candidates _source)
   "Display only the `helm-kill-ring-max-lines-number' lines of candidate."
   (cl-loop for i in candidates
-        for nlines = (with-temp-buffer (insert i) (count-lines (point-min) (point-max)))
-        if (and helm-kill-ring-max-lines-number
-                (> nlines helm-kill-ring-max-lines-number))
-        collect (cons
-                 (with-temp-buffer
-                   (insert i)
-                   (goto-char (point-min))
-                   (concat
-                    (buffer-substring
-                     (point-min)
-                     (save-excursion
-                       (forward-line helm-kill-ring-max-lines-number)
-                       (point)))
-                    "[...]")) i)
-        else collect i))
+           when (get-text-property 0 'read-only i)
+           do (set-text-properties 0 (length i) '(read-only nil) i)
+           for nlines = (with-temp-buffer (insert i) (count-lines (point-min) (point-max)))
+           if (and helm-kill-ring-max-lines-number
+                   (> nlines helm-kill-ring-max-lines-number))
+           collect (cons
+                    (with-temp-buffer
+                      (insert i)
+                      (goto-char (point-min))
+                      (concat
+                       (buffer-substring
+                        (point-min)
+                        (save-excursion
+                          (forward-line helm-kill-ring-max-lines-number)
+                          (point)))
+                       "[...]")) i)
+           else collect i))
 
 (defun helm-kill-ring-action (str)
   "Insert STR in `kill-ring' and set STR to the head.
@@ -245,7 +249,14 @@ replace with STR as yanked string."
           ((and (consp val) (window-configuration-p (car val)))
            (list "window configuration."
                  'jump-to-register))
-          ((and (consp val) (frame-configuration-p (car val)))
+          ((and (vectorp val)
+                (fboundp 'undo-tree-register-data-p)
+                (undo-tree-register-data-p (elt val 1)))
+           (list
+            "Undo-tree entry."
+            'undo-tree-restore-state-from-register))
+          ((or (and (vectorp val) (eq 'registerv (aref val 0)))
+               (and (consp val) (frame-configuration-p (car val))))
            (list "frame configuration."
                  'jump-to-register))
           ((and (consp val) (eq (car val) 'file))
@@ -277,10 +288,6 @@ replace with STR as yanked string."
             'insert-register
             'append-to-register
             'prepend-to-register))
-          ((vectorp val)
-           (list
-            "Undo-tree entry."
-            'undo-tree-restore-state-from-register))
           (t
            "GARBAGE!"))
         collect (cons (format "Register %3s:\n %s" key (car string-actions))
@@ -361,6 +368,39 @@ First call open the kill-ring browser, next calls move to next line."
         :buffer "*helm kill ring*"
         :resume 'noresume
         :allow-nest t))
+
+;;;###autoload
+(defun helm-execute-kmacro ()
+  "Keyboard macros with helm interface.
+Define your macros with `f3' and `f4'.
+See (info \"(emacs) Keyboard Macros\") for detailed infos.
+This command is useful when used with persistent action."
+  (interactive)
+  (helm :sources
+        (helm-build-sync-source "Kmacro"
+          :candidates (lambda ()
+                        (helm-fast-remove-dups
+                         (cons (kmacro-ring-head)
+                               kmacro-ring)
+                         :test 'equal))
+          :multiline t
+          :candidate-transformer
+          (lambda (candidates)
+            (cl-loop for c in candidates collect
+                     (propertize (help-key-description (car c) nil)
+                                 'helm-realvalue c)))
+          :persistent-help "Execute kmacro"
+          :action
+          (helm-make-actions
+           "Execute kmacro (`C-u <n>' to execute <n> times)"
+           (lambda (candidate)
+             (interactive)
+             ;; Move candidate on top of list for next use.
+             (setq kmacro-ring (delete candidate kmacro-ring))
+             (kmacro-push-ring)
+             (kmacro-split-ring-element candidate)
+             (kmacro-exec-ring-item
+              candidate helm-current-prefix-arg))))))
 
 (provide 'helm-ring)
 
