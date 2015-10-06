@@ -375,7 +375,10 @@ to replace the symbol under cursor"
   "zwr" 'wg-redo-wconfig-change
   "zws" 'wg-save-wconfig
   "wf" 'popup-which-function
-  "vb" 'projectile-switch-to-buffer)
+  "vb" 'projectile-switch-to-buffer
+  "vf" 'projectile-find-file
+  "cj" 'godef-jump
+  "ce" 'dash-at-point)
 
 
 

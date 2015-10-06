@@ -72,7 +72,7 @@
 ;; When doing isearch, hand the word over to helm-swoop
 (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
 
-
+(defvaralias 'helm-ff-mode-line-string 'helm-read-file-name-mode-line-string)
 (autoload 'helm-ls-git-ls "helm-ls-git" nil t)
 (autoload 'helm-browse-project "helm-ls-git" nil t)
 

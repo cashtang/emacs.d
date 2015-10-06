@@ -119,7 +119,7 @@
 (require 'init-ace-jump-mode)
 (require 'init-bbdb)
 (require 'init-gnus)
-(require 'init-lua-mode)
+;;(require 'init-lua-mode)
 (require 'init-workgroups2)
 (require 'init-term-mode)
 (require 'init-web-mode)
@@ -150,6 +150,7 @@
 
 (require 'init-auto-complete)
 (require 'init-gomode)
+(require 'init-dash-at-point)
 ;; (require 'imenu-go)
 
 (setq idle-require-idle-delay 3)

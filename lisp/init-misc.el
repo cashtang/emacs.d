@@ -566,7 +566,7 @@ grab matched string, jsonize them, and insert into kill ring"
 (defun toggle-env-http-proxy ()
   "set/unset the environment variable http_proxy which w3m uses"
   (interactive)
-  (let ((proxy "http://127.0.0.1:8000"))
+  (let ((proxy "http://127.0.0.1:1080"))
     (if (string= (getenv "http_proxy") proxy)
         ;; clear the the proxy
         (progn
